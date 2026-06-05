@@ -30,9 +30,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data0.b3dm"
-        }
+        "content": { "uri": "data/data0.b3dm" }
       },
       {
         "boundingVolume": {
@@ -47,9 +45,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data1.b3dm"
-        }
+        "content": { "uri": "data/data1.b3dm" }
       },
       {
         "boundingVolume": {
@@ -64,9 +60,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data2.b3dm"
-        }
+        "content": { "uri": "data/data2.b3dm" }
       },
       {
         "boundingVolume": {
@@ -81,9 +75,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data3.b3dm"
-        }
+        "content": { "uri": "data/data3.b3dm" }
       },
       {
         "boundingVolume": {
@@ -98,9 +90,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data4.b3dm"
-        }
+        "content": { "uri": "data/data4.b3dm" }
       },
       {
         "boundingVolume": {
@@ -115,9 +105,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data5.b3dm"
-        }
+        "content": { "uri": "data/data5.b3dm" }
       },
       {
         "boundingVolume": {
@@ -132,9 +120,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data6.b3dm"
-        }
+        "content": { "uri": "data/data6.b3dm" }
       },
       {
         "boundingVolume": {
@@ -149,9 +135,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data7.b3dm"
-        }
+        "content": { "uri": "data/data7.b3dm" }
       },
       {
         "boundingVolume": {
@@ -166,9 +150,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data8.b3dm"
-        }
+        "content": { "uri": "data/data8.b3dm" }
       },
       {
         "boundingVolume": {
@@ -183,9 +165,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data9.b3dm"
-        }
+        "content": { "uri": "data/data9.b3dm" }
       },
       {
         "boundingVolume": {
@@ -200,9 +180,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data10.b3dm"
-        }
+        "content": { "uri": "data/data10.b3dm" }
       },
       {
         "boundingVolume": {
@@ -217,9 +195,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data11.b3dm"
-        }
+        "content": { "uri": "data/data11.b3dm" }
       },
       {
         "boundingVolume": {
@@ -234,9 +210,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data12.b3dm"
-        }
+        "content": { "uri": "data/data12.b3dm" }
       },
       {
         "boundingVolume": {
@@ -251,9 +225,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data13.b3dm"
-        }
+        "content": { "uri": "data/data13.b3dm" }
       },
       {
         "boundingVolume": {
@@ -268,9 +240,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data14.b3dm"
-        }
+        "content": { "uri": "data/data14.b3dm" }
       },
       {
         "boundingVolume": {
@@ -285,9 +255,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data15.b3dm"
-        }
+        "content": { "uri": "data/data15.b3dm" }
       },
       {
         "boundingVolume": {
@@ -302,9 +270,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data16.b3dm"
-        }
+        "content": { "uri": "data/data16.b3dm" }
       },
       {
         "boundingVolume": {
@@ -319,9 +285,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data17.b3dm"
-        }
+        "content": { "uri": "data/data17.b3dm" }
       },
       {
         "boundingVolume": {
@@ -336,9 +300,7 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data18.b3dm"
-        }
+        "content": { "uri": "data/data18.b3dm" }
       },
       {
         "boundingVolume": {
@@ -353,11 +315,8 @@
         },
         "geometricError": 0,
         "refine": "REPLACE",
-        "content": {
-          "uri": "data/data19.b3dm"
-        }
+        "content": { "uri": "data/data19.b3dm" }
       }
     ]
   }
 }
-``
