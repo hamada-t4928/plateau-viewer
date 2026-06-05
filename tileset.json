@@ -1,24 +1,109 @@
 {
-  "asset": {
-    "version": "1.0"
-  },
-  "geometricError": 0,
+  "asset": { "version": "1.0" },
+  "geometricError": 500,
   "root": {
     "boundingVolume": {
       "region": [
-        2.439261379988048,
-        0.6224968973124853,
-        2.4393089025081993,
-        0.6225221227509968,
-        39.79047636399332,
-        88.69298603559126
+        2.4389,
+        0.6222,
+        2.4396,
+        0.6228,
+        0,
+        300
       ]
     },
-    "geometricError": 0,
-    "refine": "REPLACE",
-    "content": {
-      "uri": "data/data0.b3dm"
-    }
+    "geometricError": 250,
+    "refine": "ADD",
+    "children": [
+      { "geometricError": 0, "content": { "uri": "data/data0.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data1.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data2.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data3.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data4.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data5.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data6.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data7.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data8.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data9.b3dm" } },
+
+      { "geometricError": 0, "content": { "uri": "data/data10.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data11.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data12.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data13.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data14.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data15.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data16.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data17.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data18.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data19.b3dm" } },
+
+      { "geometricError": 0, "content": { "uri": "data/data20.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data21.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data22.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data23.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data24.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data25.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data26.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data27.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data28.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data29.b3dm" } },
+
+      { "geometricError": 0, "content": { "uri": "data/data30.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data31.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data32.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data33.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data34.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data35.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data36.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data37.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data38.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data39.b3dm" } },
+
+      { "geometricError": 0, "content": { "uri": "data/data40.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data41.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data42.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data43.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data44.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data45.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data46.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data47.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data48.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data49.b3dm" } },
+
+      { "geometricError": 0, "content": { "uri": "data/data50.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data51.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data52.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data53.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data54.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data55.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data56.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data57.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data58.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data59.b3dm" } },
+
+      { "geometricError": 0, "content": { "uri": "data/data60.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data61.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data62.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data63.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data64.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data65.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data66.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data67.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data68.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data69.b3dm" } },
+
+      { "geometricError": 0, "content": { "uri": "data/data70.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data71.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data72.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data73.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data74.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data75.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data76.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data77.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data78.b3dm" } },
+      { "geometricError": 0, "content": { "uri": "data/data79.b3dm" } },
+
+      { "geometricError": 0, "content": { "uri": "data/data80.b3dm" } }
+    ]
   }
 }
-``
