@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PLATEAU Viewer + Ground Panel Aligned</title>
+  <title>PLATEAU Viewer - Minimal Terrain</title>
 
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
@@ -62,6 +62,7 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.12);
     }
 
+    /* 右上コンパス */
     #compassWrap {
       position: absolute;
       top: 16px;
@@ -108,9 +109,10 @@
   </div>
 
   <div id="note">
-    東京タワーは一旦非表示。<br>
-    本物の terrain（PLATEAU-Terrain）は維持しつつ、建物の足元に近い高さへ地面プレートを合わせる版です。<br>
-    まずは「建物が地面に接して見えるか」を確認します。
+    仮プレートなし・東京タワーなしの最小構成です。<br>
+    本物の terrain（PLATEAU-Terrain）と PLATEAU 建物だけを確認する版です。<br>
+    地表の見た目は、まず軽く安定しやすい OpenStreetMap を使っています。<br>
+    まずは「建物と terrain が見える」状態の確認だけに絞っています。
   </div>
 
   <div id="cesiumContainer"></div>
@@ -133,6 +135,7 @@
 
     async function main() {
       try {
+        // 本物の terrain（PLATEAU-Terrain）
         const terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl(
           "https://tile.plateauview.mlit.go.jp/terrain/layer.json"
         );
@@ -147,12 +150,15 @@
           navigationHelpButton: false,
           infoBox: false,
           selectionIndicator: false,
-          terrainProvider: terrainProvider
+          terrainProvider: terrainProvider,
+          imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+            url: "https://tile.openstreetmap.org/"
+          })
         });
 
+        // 背景を真っ黒ではなく空色に
         viewer.scene.skyBox.show = false;
         viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#9bc3ea");
-        viewer.scene.globe.depthTestAgainstTerrain = true;
 
         // 建物
         const tileset = await Cesium.Cesium3DTileset.fromUrl("./tileset.json");
@@ -161,48 +167,20 @@
         tileset.baseScreenSpaceError = 1024;
         viewer.scene.primitives.add(tileset);
 
-        // 地面プレート中心（神谷町〜芝公園）
-        const panelCenterLon = 139.7452;
-        const panelCenterLat = 35.6600;
-
-        let ground = 0;
-        try {
-          const sampled = await Cesium.sampleTerrain(terrainProvider, 14, [
-            Cesium.Cartographic.fromDegrees(panelCenterLon, panelCenterLat)
-          ]);
-          if (sampled && sampled[0] && Number.isFinite(sampled[0].height)) {
-            ground = sampled[0].height;
-          }
-        } catch (e) {
-          console.warn("ground sample failed", e);
-        }
-
-        // 重要：建物足元に寄せるため、terrain高に加えてオフセットで持ち上げる
-        // まず +32m を試す
-        const panelBase = ground + 32.0;
-
-        viewer.entities.add({
-          name: "地面パネル",
-          position: Cesium.Cartesian3.fromDegrees(panelCenterLon, panelCenterLat, panelBase),
-          box: {
-            dimensions: new Cesium.Cartesian3(1400.0, 1400.0, 8.0),
-            material: Cesium.Color.fromBytes(140, 140, 140, 170),
-            outline: false
-          }
-        });
-
-        // 真上に近い見下ろし
+        // 初期視点（神谷町～芝公園あたりを上空から見下ろし）
         viewer.camera.setView({
-          destination: Cesium.Cartesian3.fromDegrees(panelCenterLon, panelCenterLat, 4200),
+          destination: Cesium.Cartesian3.fromDegrees(139.7452, 35.6600, 5200),
           orientation: {
-            heading: Cesium.Math.toRadians(0),
-            pitch: Cesium.Math.toRadians(-88),
+            heading: Cesium.Math.toRadians(20),
+            pitch: Cesium.Math.toRadians(-70),
             roll: 0
           }
         });
 
-        viewer.scene.camera.frustum.far = 10000.0;
+        // 遠景を少し切って軽くする
+        viewer.scene.camera.frustum.far = 9000.0;
 
+        // コンパス回転
         viewer.scene.postRender.addEventListener(function () {
           const heading = viewer.camera.heading;
           const deg = -Cesium.Math.toDegrees(heading);
@@ -215,6 +193,7 @@
       }
     }
 
+    // 万一どこかで待ち続けても loading を消す
     setTimeout(() => {
       hideLoading();
     }, 12000);
