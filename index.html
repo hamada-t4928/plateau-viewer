@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PLATEAU Viewer + Terrain + Tokyo Tower</title>
 
-  <script src="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.js"></script>
-  <link href="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+  https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.jsscript>
+  https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css
 
   <style>
     html, body, #cesiumContainer {
@@ -58,7 +58,7 @@
       font-size: 12px;
       line-height: 1.6;
       color: #334155;
-      max-width: 700px;
+      max-width: 720px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.12);
     }
 
@@ -109,10 +109,10 @@
   </div>
 
   <div id="note">
-    本物の terrain（PLATEAU-Terrain）を使う軽量安定版です。<br>
-    地面の見た目はまず軽い地図（OSM）で出しています。<br>
-    東京タワーは terrain 高さを取得し、その地面の上に置きます。<br>
-    初期視点を上空の見下ろしに固定し、床下にもぐらないようにしています。
+    本物の terrain（PLATEAU-Terrain）を適用しています。<br>
+    地表の見た目は、まず軽く安定しやすい OpenStreetMap で表示。<br>
+    東京タワーは terrain 高さを取得して、その地面の少し上（+8m）に設置。<br>
+    初期視点を上空からの見下ろしに強めに固定しています。
   </div>
 
   <div id="cesiumContainer"></div>
@@ -165,15 +165,18 @@
         console.warn("terrain 高さ取得失敗。ground=0 で続行:", e);
       }
 
-      // 333mになるように積み上げ
-      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, ground + 70,   140, 9,   20,  Cesium.Color.fromCssColorString("#dc2626"), "東京タワー 下部本体");
-      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, ground + 149,   18, 15,  15,  Cesium.Color.WHITE,                                  "東京タワー 展望台");
-      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, ground + 181.5, 47, 6,   8,   Cesium.Color.WHITE,                                  "東京タワー 白1");
-      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, ground + 220,   30, 4.8, 6,   Cesium.Color.fromCssColorString("#dc2626"),         "東京タワー 赤1");
-      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, ground + 246,   22, 3.5, 4.8, Cesium.Color.WHITE,                                  "東京タワー 白2");
-      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, ground + 266,   18, 2.5, 3.5, Cesium.Color.fromCssColorString("#dc2626"),         "東京タワー 赤2");
-      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, ground + 282,   14, 1.8, 2.5, Cesium.Color.WHITE,                                  "東京タワー 白3");
-      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, ground + 311,   44, 0.45,1.0, Cesium.Color.WHITE,                                  "東京タワー アンテナ");
+      // 埋まり対策として +8m 上げる
+      const base = ground + 8.0;
+
+      // 合計333m
+      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, base + 70,   140, 9,   20,  Cesium.Color.fromCssColorString("#dc2626"), "東京タワー 下部本体");
+      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, base + 149,   18, 15,  15,  Cesium.Color.WHITE,                                  "東京タワー 展望台");
+      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, base + 181.5, 47, 6,   8,   Cesium.Color.WHITE,                                  "東京タワー 白1");
+      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, base + 220,   30, 4.8, 6,   Cesium.Color.fromCssColorString("#dc2626"),         "東京タワー 赤1");
+      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, base + 246,   22, 3.5, 4.8, Cesium.Color.WHITE,                                  "東京タワー 白2");
+      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, base + 266,   18, 2.5, 3.5, Cesium.Color.fromCssColorString("#dc2626"),         "東京タワー 赤2");
+      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, base + 282,   14, 1.8, 2.5, Cesium.Color.WHITE,                                  "東京タワー 白3");
+      addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, base + 311,   44, 0.45,1.0, Cesium.Color.WHITE,                                  "東京タワー アンテナ");
     }
 
     async function main() {
@@ -199,17 +202,12 @@
           })
         });
 
+        // 地表画像が見えやすいよう、空の背景も少し明るく
+        viewer.scene.skyBox.show = false;
+        viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#9bc3ea");
+
         // 地形より下を隠す
         viewer.scene.globe.depthTestAgainstTerrain = true;
-
-        // 背景を少し明るくして空を真っ黒にしない
-        viewer.scene.skyBox.show = false;
-        viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#87b7e3");
-
-        // 軽量化
-        viewer.scene.fog.enabled = true;
-        viewer.scene.fog.density = 0.0005;
-        viewer.scene.fog.minimumBrightness = 0.7;
 
         // 建物
         const tileset = await Cesium.Cesium3DTileset.fromUrl("./tileset.json");
@@ -221,18 +219,18 @@
         // 東京タワー
         await addTokyoTower(viewer, terrainProvider);
 
-        // 初期視点：かなり上空の見下ろし
+        // 初期視点：もっと高く、もっと見下ろす
         viewer.camera.setView({
-          destination: Cesium.Cartesian3.fromDegrees(139.7452, 35.6600, 3200),
+          destination: Cesium.Cartesian3.fromDegrees(139.7452, 35.6600, 5200),
           orientation: {
             heading: Cesium.Math.toRadians(25),
-            pitch: Cesium.Math.toRadians(-50),
+            pitch: Cesium.Math.toRadians(-65),
             roll: 0
           }
         });
 
         // 遠景を切って軽く
-        viewer.scene.camera.frustum.far = 6000.0;
+        viewer.scene.camera.frustum.far = 9000.0;
 
         // コンパス
         viewer.scene.postRender.addEventListener(function () {
@@ -247,7 +245,6 @@
       }
     }
 
-    // どこかで待っても、12秒後には loading を消す
     setTimeout(() => {
       hideLoading();
     }, 12000);
