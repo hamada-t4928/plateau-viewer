@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PLATEAU Viewer + Ground Panel Test</title>
+  <title>PLATEAU Viewer + Ground Panel Aligned</title>
 
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
@@ -109,8 +109,8 @@
 
   <div id="note">
     東京タワーは一旦非表示。<br>
-    本物の terrain（PLATEAU-Terrain）は維持しつつ、まず「地面が見えるか」を確認する版です。<br>
-    半透明グレーの大きな地面パネルを、神谷町〜芝公園付近に少し浮かせて表示します。
+    本物の terrain（PLATEAU-Terrain）は維持しつつ、建物の足元に近い高さへ地面プレートを合わせる版です。<br>
+    まずは「建物が地面に接して見えるか」を確認します。
   </div>
 
   <div id="cesiumContainer"></div>
@@ -133,7 +133,6 @@
 
     async function main() {
       try {
-        // 本物の terrain（PLATEAU-Terrain）
         const terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl(
           "https://tile.plateauview.mlit.go.jp/terrain/layer.json"
         );
@@ -151,11 +150,8 @@
           terrainProvider: terrainProvider
         });
 
-        // 空背景
         viewer.scene.skyBox.show = false;
         viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#9bc3ea");
-
-        // terrain より下を隠す
         viewer.scene.globe.depthTestAgainstTerrain = true;
 
         // 建物
@@ -165,12 +161,10 @@
         tileset.baseScreenSpaceError = 1024;
         viewer.scene.primitives.add(tileset);
 
-        // ===== 地面パネル（必ず見えるよう、少し浮かせた大きな箱）=====
-        // 中心: 神谷町〜芝公園
+        // 地面プレート中心（神谷町〜芝公園）
         const panelCenterLon = 139.7452;
         const panelCenterLat = 35.6600;
 
-        // terrain 高さを取得
         let ground = 0;
         try {
           const sampled = await Cesium.sampleTerrain(terrainProvider, 14, [
@@ -183,30 +177,32 @@
           console.warn("ground sample failed", e);
         }
 
-        // 1200m x 1200m の半透明地面パネル
+        // 重要：建物足元に寄せるため、terrain高に加えてオフセットで持ち上げる
+        // まず +32m を試す
+        const panelBase = ground + 32.0;
+
         viewer.entities.add({
           name: "地面パネル",
-          position: Cesium.Cartesian3.fromDegrees(panelCenterLon, panelCenterLat, ground + 3),
+          position: Cesium.Cartesian3.fromDegrees(panelCenterLon, panelCenterLat, panelBase),
           box: {
-            dimensions: new Cesium.Cartesian3(1200.0, 1200.0, 6.0),
-            material: Cesium.Color.fromBytes(150, 150, 150, 140),
+            dimensions: new Cesium.Cartesian3(1400.0, 1400.0, 8.0),
+            material: Cesium.Color.fromBytes(140, 140, 140, 170),
             outline: false
           }
         });
 
-        // 初期視点：真上に近い強い見下ろし
+        // 真上に近い見下ろし
         viewer.camera.setView({
           destination: Cesium.Cartesian3.fromDegrees(panelCenterLon, panelCenterLat, 4200),
           orientation: {
             heading: Cesium.Math.toRadians(0),
-            pitch: Cesium.Math.toRadians(-85),
+            pitch: Cesium.Math.toRadians(-88),
             roll: 0
           }
         });
 
         viewer.scene.camera.frustum.far = 10000.0;
 
-        // コンパス
         viewer.scene.postRender.addEventListener(function () {
           const heading = viewer.camera.heading;
           const deg = -Cesium.Math.toDegrees(heading);
@@ -227,4 +223,3 @@
   </script>
 </body>
 </html>
-``
