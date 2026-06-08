@@ -15,8 +15,8 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
-      font-family: sans-serif;
       background: #000;
+      font-family: sans-serif;
     }
 
     #loading {
@@ -56,9 +56,9 @@
       padding: 10px 12px;
       border-radius: 8px;
       font-size: 12px;
-      line-height: 1.6;
+      line-height: 1.65;
       color: #334155;
-      max-width: 640px;
+      max-width: 660px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.12);
     }
 
@@ -109,9 +109,10 @@
   </div>
 
   <div id="note">
-    本物の terrain（PLATEAU-Terrain）を適用し、PLATEAU-Ortho を地表に表示。<br>
-    東京タワーは地形の高さを取得し、その地面の上に立てます。<br>
-    右上の赤三角は北向きコンパスです。
+    PLATEAU-Terrain と PLATEAU-Ortho を使用。<br>
+    初期視点を上空からの見下ろしに固定し、地面が見える状態に調整。<br>
+    東京タワーは地形高さを取得して、その地面の上に配置。<br>
+    表示を少し軽くするため、3D Tiles の描画品質もやや軽めに設定。
   </div>
 
   <div id="cesiumContainer"></div>
@@ -128,7 +129,6 @@
       console.error(message);
     }
 
-    // 東京タワー座標
     const TOKYO_TOWER_LON = 139.745433;
     const TOKYO_TOWER_LAT = 35.658581;
 
@@ -150,7 +150,6 @@
       let ground = 0;
 
       try {
-        // sampleTerrainMostDetailed ではなく sampleTerrain を使って安定化
         const positions = [
           Cesium.Cartographic.fromDegrees(TOKYO_TOWER_LON, TOKYO_TOWER_LAT)
         ];
@@ -164,104 +163,65 @@
         ground = 0;
       }
 
-      // 東京タワー本体（合計333m）
-      // 0-140m: 下部赤
+      // 東京タワー（合計333m）
       addTowerSegment(
-        viewer,
-        TOKYO_TOWER_LON,
-        TOKYO_TOWER_LAT,
-        ground + 70,
-        140, 9, 20,
+        viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT,
+        ground + 70, 140, 9, 20,
         Cesium.Color.fromCssColorString("#dc2626"),
         "東京タワー 下部本体"
       );
 
-      // 140-158m: 展望台（白）
+      // 展望台（白）
       addTowerSegment(
-        viewer,
-        TOKYO_TOWER_LON,
-        TOKYO_TOWER_LAT,
-        ground + 149,
-        18, 15, 15,
+        viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT,
+        ground + 149, 18, 15, 15,
         Cesium.Color.WHITE,
         "東京タワー 展望台"
       );
 
-      // 158-205m: 白
+      // 白 → 赤 → 白 → 赤 → 白
       addTowerSegment(
-        viewer,
-        TOKYO_TOWER_LON,
-        TOKYO_TOWER_LAT,
-        ground + 181.5,
-        47, 6, 8,
+        viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT,
+        ground + 181.5, 47, 6, 8,
         Cesium.Color.WHITE,
         "東京タワー 白セクション1"
       );
 
-      // 205-235m: 赤
       addTowerSegment(
-        viewer,
-        TOKYO_TOWER_LON,
-        TOKYO_TOWER_LAT,
-        ground + 220,
-        30, 4.8, 6,
+        viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT,
+        ground + 220, 30, 4.8, 6,
         Cesium.Color.fromCssColorString("#dc2626"),
         "東京タワー 赤セクション1"
       );
 
-      // 235-257m: 白
       addTowerSegment(
-        viewer,
-        TOKYO_TOWER_LON,
-        TOKYO_TOWER_LAT,
-        ground + 246,
-        22, 3.5, 4.8,
+        viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT,
+        ground + 246, 22, 3.5, 4.8,
         Cesium.Color.WHITE,
         "東京タワー 白セクション2"
       );
 
-      // 257-275m: 赤
       addTowerSegment(
-        viewer,
-        TOKYO_TOWER_LON,
-        TOKYO_TOWER_LAT,
-        ground + 266,
-        18, 2.5, 3.5,
+        viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT,
+        ground + 266, 18, 2.5, 3.5,
         Cesium.Color.fromCssColorString("#dc2626"),
         "東京タワー 赤セクション2"
       );
 
-      // 275-289m: 白
       addTowerSegment(
-        viewer,
-        TOKYO_TOWER_LON,
-        TOKYO_TOWER_LAT,
-        ground + 282,
-        14, 1.8, 2.5,
+        viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT,
+        ground + 282, 14, 1.8, 2.5,
         Cesium.Color.WHITE,
         "東京タワー 白セクション3"
       );
 
-      // 289-333m: アンテナ
+      // アンテナ
       addTowerSegment(
-        viewer,
-        TOKYO_TOWER_LON,
-        TOKYO_TOWER_LAT,
-        ground + 311,
-        44, 0.45, 1.0,
+        viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT,
+        ground + 311, 44, 0.45, 1.0,
         Cesium.Color.WHITE,
         "東京タワー アンテナ"
       );
-
-      // 根元マーカー
-      viewer.entities.add({
-        name: "東京タワー位置",
-        position: Cesium.Cartesian3.fromDegrees(TOKYO_TOWER_LON, TOKYO_TOWER_LAT, ground + 2),
-        ellipsoid: {
-          radii: new Cesium.Cartesian3(4, 4, 4),
-          material: Cesium.Color.fromCssColorString("#ef4444")
-        }
-      });
     }
 
     async function main() {
@@ -271,61 +231,3 @@
           "https://tile.plateauview.mlit.go.jp/terrain/layer.json"
         );
 
-        const viewer = new Cesium.Viewer("cesiumContainer", {
-          animation: false,
-          timeline: false,
-          geocoder: false,
-          baseLayerPicker: false,
-          homeButton: true,
-          sceneModePicker: true,
-          navigationHelpButton: false,
-          infoBox: false,
-          selectionIndicator: false,
-          terrainProvider: terrainProvider
-        });
-
-        // 既定地図を消して PLATEAU-Ortho を追加
-        viewer.imageryLayers.removeAll();
-        const ortho = new Cesium.UrlTemplateImageryProvider({
-          url: "https://tile.plateauview.mlit.go.jp/tiles/plateau-ortho-2023/{z}/{x}/{y}.png",
-          maximumLevel: 19
-        });
-        viewer.imageryLayers.addImageryProvider(ortho);
-
-        // 地形より下のものを隠す
-        viewer.scene.globe.depthTestAgainstTerrain = true;
-
-        // 建物
-        const tileset = await Cesium.Cesium3DTileset.fromUrl("./tileset.json");
-        viewer.scene.primitives.add(tileset);
-
-        // 東京タワー
-        await addTokyoTowerOnTerrain(viewer, terrainProvider);
-
-        // 初期視点（神谷町〜芝公園寄り）
-        viewer.camera.setView({
-          destination: Cesium.Cartesian3.fromDegrees(139.7452, 35.6600, 1600),
-          orientation: {
-            heading: Cesium.Math.toRadians(8),
-            pitch: Cesium.Math.toRadians(-42),
-            roll: 0
-          }
-        });
-
-        // コンパス回転
-        viewer.scene.postRender.addEventListener(function () {
-          const heading = viewer.camera.heading;
-          const deg = -Cesium.Math.toDegrees(heading);
-          compass.style.transform = `rotate(${deg}deg)`;
-        });
-
-        loading.style.display = "none";
-      } catch (e) {
-        showError("エラーが発生しました:\n" + (e && e.stack ? e.stack : String(e)));
-      }
-    }
-
-    main();
-  </script>
-</body>
-</html>
