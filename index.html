@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PLATEAU Viewer + Ground Base</title>
+  <title>PLATEAU Viewer + Ground Panel Test</title>
 
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
@@ -62,7 +62,6 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.12);
     }
 
-    /* 右上コンパス */
     #compassWrap {
       position: absolute;
       top: 16px;
@@ -109,9 +108,9 @@
   </div>
 
   <div id="note">
-    東京タワーは一旦非表示にし、まず地面を確実に見せる版です。<br>
-    本物の terrain（PLATEAU-Terrain）を使いつつ、その上に半透明グレーの地面プレートを重ねています。<br>
-    地表画像はまず軽く安定しやすい OpenStreetMap を使用しています。
+    東京タワーは一旦非表示。<br>
+    本物の terrain（PLATEAU-Terrain）は維持しつつ、まず「地面が見えるか」を確認する版です。<br>
+    半透明グレーの大きな地面パネルを、神谷町〜芝公園付近に少し浮かせて表示します。
   </div>
 
   <div id="cesiumContainer"></div>
@@ -149,15 +148,14 @@
           navigationHelpButton: false,
           infoBox: false,
           selectionIndicator: false,
-          terrainProvider: terrainProvider,
-          imageryProvider: new Cesium.OpenStreetMapImageryProvider({
-            url: "https://tile.openstreetmap.org/"
-          })
+          terrainProvider: terrainProvider
         });
 
-        // 背景と描画まわり
+        // 空背景
         viewer.scene.skyBox.show = false;
         viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#9bc3ea");
+
+        // terrain より下を隠す
         viewer.scene.globe.depthTestAgainstTerrain = true;
 
         // 建物
@@ -167,35 +165,48 @@
         tileset.baseScreenSpaceError = 1024;
         viewer.scene.primitives.add(tileset);
 
-        // ===== 板状の地面プレート =====
-        // 虎ノ門〜神谷町〜芝公園あたりをカバーする矩形
-        // rectangle は地形の上に drape されるので「地面」として見えます
+        // ===== 地面パネル（必ず見えるよう、少し浮かせた大きな箱）=====
+        // 中心: 神谷町〜芝公園
+        const panelCenterLon = 139.7452;
+        const panelCenterLat = 35.6600;
+
+        // terrain 高さを取得
+        let ground = 0;
+        try {
+          const sampled = await Cesium.sampleTerrain(terrainProvider, 14, [
+            Cesium.Cartographic.fromDegrees(panelCenterLon, panelCenterLat)
+          ]);
+          if (sampled && sampled[0] && Number.isFinite(sampled[0].height)) {
+            ground = sampled[0].height;
+          }
+        } catch (e) {
+          console.warn("ground sample failed", e);
+        }
+
+        // 1200m x 1200m の半透明地面パネル
         viewer.entities.add({
-          name: "地面プレート",
-          rectangle: {
-            coordinates: Cesium.Rectangle.fromDegrees(
-              139.7390, 35.6545,   // 西, 南
-              139.7525, 35.6665    // 東, 北
-            ),
-            material: Cesium.Color.fromBytes(180, 185, 190, 170),
-            classificationType: Cesium.ClassificationType.TERRAIN
+          name: "地面パネル",
+          position: Cesium.Cartesian3.fromDegrees(panelCenterLon, panelCenterLat, ground + 3),
+          box: {
+            dimensions: new Cesium.Cartesian3(1200.0, 1200.0, 6.0),
+            material: Cesium.Color.fromBytes(150, 150, 150, 140),
+            outline: false
           }
         });
 
-        // 初期視点：かなり高い見下ろし
+        // 初期視点：真上に近い強い見下ろし
         viewer.camera.setView({
-          destination: Cesium.Cartesian3.fromDegrees(139.7452, 35.6600, 5200),
+          destination: Cesium.Cartesian3.fromDegrees(panelCenterLon, panelCenterLat, 4200),
           orientation: {
-            heading: Cesium.Math.toRadians(20),
-            pitch: Cesium.Math.toRadians(-70),
+            heading: Cesium.Math.toRadians(0),
+            pitch: Cesium.Math.toRadians(-85),
             roll: 0
           }
         });
 
-        // 遠景を少し切って軽量化
-        viewer.scene.camera.frustum.far = 9000.0;
+        viewer.scene.camera.frustum.far = 10000.0;
 
-        // コンパス回転
+        // コンパス
         viewer.scene.postRender.addEventListener(function () {
           const heading = viewer.camera.heading;
           const deg = -Cesium.Math.toDegrees(heading);
@@ -216,3 +227,4 @@
   </script>
 </body>
 </html>
+``
