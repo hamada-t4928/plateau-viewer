@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PLATEAU Viewer + Terrain + Tokyo Tower</title>
 
-  https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.jsscript>
-  https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
 
   <style>
     html, body, #cesiumContainer {
@@ -62,7 +62,6 @@
       box-shadow: 0 2px 10px rgba(0,0,0,0.12);
     }
 
-    /* 右上コンパス */
     #compassWrap {
       position: absolute;
       top: 16px;
@@ -109,10 +108,10 @@
   </div>
 
   <div id="note">
-    本物の terrain（PLATEAU-Terrain）を適用しています。<br>
-    地表の見た目は、まず軽く安定しやすい OpenStreetMap で表示。<br>
-    東京タワーは terrain 高さを取得して、その地面の少し上（+8m）に設置。<br>
-    初期視点を上空からの見下ろしに強めに固定しています。
+    本物の terrain（PLATEAU-Terrain）を使う軽量安定版です。<br>
+    地表の見た目は、まず軽く安定しやすい OpenStreetMap で表示します。<br>
+    東京タワーは terrain 高さを取得し、その地面の少し上（+12m）に設置します。<br>
+    初期視点を上空の見下ろしに強めに固定しています。
   </div>
 
   <div id="cesiumContainer"></div>
@@ -165,10 +164,10 @@
         console.warn("terrain 高さ取得失敗。ground=0 で続行:", e);
       }
 
-      // 埋まり対策として +8m 上げる
-      const base = ground + 8.0;
+      // 埋まり対策として +12m 上げる
+      const base = ground + 12.0;
 
-      // 合計333m
+      // 333m になるように積み上げ
       addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, base + 70,   140, 9,   20,  Cesium.Color.fromCssColorString("#dc2626"), "東京タワー 下部本体");
       addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, base + 149,   18, 15,  15,  Cesium.Color.WHITE,                                  "東京タワー 展望台");
       addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, base + 181.5, 47, 6,   8,   Cesium.Color.WHITE,                                  "東京タワー 白1");
@@ -202,11 +201,12 @@
           })
         });
 
-        // 地表画像が見えやすいよう、空の背景も少し明るく
+        // Terrain の上に地図を出す
+        viewer.scene.globe.showGroundAtmosphere = false;
         viewer.scene.skyBox.show = false;
         viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#9bc3ea");
 
-        // 地形より下を隠す
+        // terrain より下を隠す
         viewer.scene.globe.depthTestAgainstTerrain = true;
 
         // 建物
@@ -219,7 +219,7 @@
         // 東京タワー
         await addTokyoTower(viewer, terrainProvider);
 
-        // 初期視点：もっと高く、もっと見下ろす
+        // 初期視点：かなり高い上空から見下ろし
         viewer.camera.setView({
           destination: Cesium.Cartesian3.fromDegrees(139.7452, 35.6600, 5200),
           orientation: {
@@ -232,7 +232,7 @@
         // 遠景を切って軽く
         viewer.scene.camera.frustum.far = 9000.0;
 
-        // コンパス
+        // コンパス回転
         viewer.scene.postRender.addEventListener(function () {
           const heading = viewer.camera.heading;
           const deg = -Cesium.Math.toDegrees(heading);
@@ -245,6 +245,7 @@
       }
     }
 
+    // どこかで待ち続けても、12秒後に loading は消す
     setTimeout(() => {
       hideLoading();
     }, 12000);
