@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PLATEAU Viewer + 東京タワー + 地面</title>
+  <title>PLATEAU Viewer + Real Terrain + Tokyo Tower</title>
 
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
@@ -16,6 +16,7 @@
       padding: 0;
       overflow: hidden;
       font-family: sans-serif;
+      background: #000;
     }
 
     #loading {
@@ -57,11 +58,10 @@
       font-size: 12px;
       line-height: 1.6;
       color: #334155;
-      max-width: 560px;
+      max-width: 620px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.12);
     }
 
-    /* 右上コンパス */
     #compassWrap {
       position: absolute;
       top: 16px;
@@ -101,16 +101,16 @@
   <div id="compassWrap">
     <div id="compassLabel">N</div>
     <svg id="compass" viewBox="0 0 100 100">
-      <circle cx="50" cy="50" r="30" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.8)" stroke-width="3"></circle>
+      <circle cx="50" cy="50" r="30" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.85)" stroke-width="3"></circle>
       <polygon points="50,12 60,42 50,36 40,42" fill="#ef4444"></polygon>
       <polygon points="50,88 60,58 50,64 40,58" fill="rgba(255,255,255,0.75)"></polygon>
     </svg>
   </div>
 
   <div id="note">
-    港区 PLATEAU 建築物 LOD1 を表示中。<br>
-    黒背景はやめ、地図面を地面として表示。<br>
-    東京タワーは地表基準で配置し、白い展望台＋赤白縞＋細いアンテナに修正。
+    本物の terrain（PLATEAU-Terrain）を適用し、PLATEAU-Ortho を地表に表示。<br>
+    東京タワーは地形の高さを取得して、その地面の上に立てます。<br>
+    右上の赤三角は北向きコンパスです。
   </div>
 
   <div id="cesiumContainer"></div>
@@ -130,120 +130,120 @@
     const TOKYO_TOWER_LON = 139.745433;
     const TOKYO_TOWER_LAT = 35.658581;
 
-    function addTokyoTower(viewer) {
-      const lon = TOKYO_TOWER_LON;
-      const lat = TOKYO_TOWER_LAT;
-
-      // 1) 下部本体（赤）
+    function addTowerSegment(viewer, lon, lat, centerHeight, length, topRadius, bottomRadius, color, name) {
       viewer.entities.add({
-        name: "東京タワー 下部本体",
-        position: Cesium.Cartesian3.fromDegrees(lon, lat, 70),
+        name,
+        position: Cesium.Cartesian3.fromDegrees(lon, lat, centerHeight),
         cylinder: {
-          length: 140,
-          topRadius: 9,
-          bottomRadius: 20,
-          material: Cesium.Color.fromCssColorString("#dc2626"),
+          length,
+          topRadius,
+          bottomRadius,
+          material: color,
           outline: false
         }
       });
+    }
 
-      // 2) 展望台部分（白）
-      viewer.entities.add({
-        name: "東京タワー 展望台",
-        position: Cesium.Cartesian3.fromDegrees(lon, lat, 154),
-        cylinder: {
-          length: 18,
-          topRadius: 15,
-          bottomRadius: 15,
-          material: Cesium.Color.WHITE,
-          outline: false
-        }
-      });
+    async function addTokyoTowerOnTerrain(viewer, terrainProvider) {
+      const cartographic = Cesium.Cartographic.fromDegrees(TOKYO_TOWER_LON, TOKYO_TOWER_LAT);
+      const [sampled] = await Cesium.sampleTerrainMostDetailed(terrainProvider, [cartographic]);
+      const ground = Number.isFinite(sampled.height) ? sampled.height : 0;
 
-      // 3) 白セクション
-      viewer.entities.add({
-        name: "東京タワー 上部 白",
-        position: Cesium.Cartesian3.fromDegrees(lon, lat, 196),
-        cylinder: {
-          length: 42,
-          topRadius: 6,
-          bottomRadius: 8,
-          material: Cesium.Color.WHITE,
-          outline: false
-        }
-      });
+      // 高さ積み上げ（合計333m）
+      // 0-140m: 下部赤
+      addTowerSegment(
+        viewer,
+        TOKYO_TOWER_LON,
+        TOKYO_TOWER_LAT,
+        ground + 70,
+        140, 9, 20,
+        Cesium.Color.fromCssColorString("#dc2626"),
+        "東京タワー 下部本体"
+      );
 
-      // 4) 赤セクション
-      viewer.entities.add({
-        name: "東京タワー 上部 赤",
-        position: Cesium.Cartesian3.fromDegrees(lon, lat, 232),
-        cylinder: {
-          length: 30,
-          topRadius: 4.8,
-          bottomRadius: 6,
-          material: Cesium.Color.fromCssColorString("#dc2626"),
-          outline: false
-        }
-      });
+      // 140-158m: 展望台（白）
+      addTowerSegment(
+        viewer,
+        TOKYO_TOWER_LON,
+        TOKYO_TOWER_LAT,
+        ground + 149,
+        18, 15, 15,
+        Cesium.Color.WHITE,
+        "東京タワー 展望台"
+      );
 
-      // 5) 白セクション
-      viewer.entities.add({
-        name: "東京タワー 上部 白2",
-        position: Cesium.Cartesian3.fromDegrees(lon, lat, 258),
-        cylinder: {
-          length: 22,
-          topRadius: 3.5,
-          bottomRadius: 4.8,
-          material: Cesium.Color.WHITE,
-          outline: false
-        }
-      });
+      // 158-205m: 白
+      addTowerSegment(
+        viewer,
+        TOKYO_TOWER_LON,
+        TOKYO_TOWER_LAT,
+        ground + 181.5,
+        47, 6, 8,
+        Cesium.Color.WHITE,
+        "東京タワー 白セクション1"
+      );
 
-      // 6) 赤セクション
-      viewer.entities.add({
-        name: "東京タワー 上部 赤2",
-        position: Cesium.Cartesian3.fromDegrees(lon, lat, 278),
-        cylinder: {
-          length: 18,
-          topRadius: 2.5,
-          bottomRadius: 3.5,
-          material: Cesium.Color.fromCssColorString("#dc2626"),
-          outline: false
-        }
-      });
+      // 205-235m: 赤
+      addTowerSegment(
+        viewer,
+        TOKYO_TOWER_LON,
+        TOKYO_TOWER_LAT,
+        ground + 220,
+        30, 4.8, 6,
+        Cesium.Color.fromCssColorString("#dc2626"),
+        "東京タワー 赤セクション1"
+      );
 
-      // 7) 白セクション
-      viewer.entities.add({
-        name: "東京タワー 上部 白3",
-        position: Cesium.Cartesian3.fromDegrees(lon, lat, 294),
-        cylinder: {
-          length: 14,
-          topRadius: 1.8,
-          bottomRadius: 2.5,
-          material: Cesium.Color.WHITE,
-          outline: false
-        }
-      });
+      // 235-257m: 白
+      addTowerSegment(
+        viewer,
+        TOKYO_TOWER_LON,
+        TOKYO_TOWER_LAT,
+        ground + 246,
+        22, 3.5, 4.8,
+        Cesium.Color.WHITE,
+        "東京タワー 白セクション2"
+      );
 
-      // 8) 先端アンテナ（細い白）
-      viewer.entities.add({
-        name: "東京タワー アンテナ",
-        position: Cesium.Cartesian3.fromDegrees(lon, lat, 318),
-        cylinder: {
-          length: 30,
-          topRadius: 0.45,
-          bottomRadius: 1.0,
-          material: Cesium.Color.WHITE,
-          outline: false
-        }
-      });
+      // 257-275m: 赤
+      addTowerSegment(
+        viewer,
+        TOKYO_TOWER_LON,
+        TOKYO_TOWER_LAT,
+        ground + 266,
+        18, 2.5, 3.5,
+        Cesium.Color.fromCssColorString("#dc2626"),
+        "東京タワー 赤セクション2"
+      );
+
+      // 275-289m: 白
+      addTowerSegment(
+        viewer,
+        TOKYO_TOWER_LON,
+        TOKYO_TOWER_LAT,
+        ground + 282,
+        14, 1.8, 2.5,
+        Cesium.Color.WHITE,
+        "東京タワー 白セクション3"
+      );
+
+      // 289-333m: 細いアンテナ
+      addTowerSegment(
+        viewer,
+        TOKYO_TOWER_LON,
+        TOKYO_TOWER_LAT,
+        ground + 311,
+        44, 0.45, 1.0,
+        Cesium.Color.WHITE,
+        "東京タワー アンテナ"
+      );
 
       // 根元マーカー
       viewer.entities.add({
         name: "東京タワー位置",
-        position: Cesium.Cartesian3.fromDegrees(lon, lat, 3),
+        position: Cesium.Cartesian3.fromDegrees(TOKYO_TOWER_LON, TOKYO_TOWER_LAT, ground + 2),
         ellipsoid: {
-          radii: new Cesium.Cartesian3(5, 5, 5),
+          radii: new Cesium.Cartesian3(4, 4, 4),
           material: Cesium.Color.fromCssColorString("#ef4444")
         }
       });
@@ -251,6 +251,11 @@
 
     async function main() {
       try {
+        // 本物の terrain（PLATEAU-Terrain）
+        const terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl(
+          "https://tile.plateauview.mlit.go.jp/terrain/layer.json"
+        );
+
         const viewer = new Cesium.Viewer("cesiumContainer", {
           animation: false,
           timeline: false,
@@ -261,23 +266,30 @@
           navigationHelpButton: false,
           infoBox: false,
           selectionIndicator: false,
-          terrainProvider: new Cesium.EllipsoidTerrainProvider(),
-          imageryProvider: new Cesium.OpenStreetMapImageryProvider({
-            url: "https://tile.openstreetmap.org/"
-          })
+          terrainProvider: terrainProvider
         });
 
+        // デフォルト地図を消して PLATEAU-Ortho を追加
+        viewer.imageryLayers.removeAll();
+
+        const ortho = new Cesium.UrlTemplateImageryProvider({
+          url: "https://tile.plateauview.mlit.go.jp/tiles/plateau-ortho-2023/{z}/{x}/{y}.png",
+          maximumLevel: 19
+        });
+        viewer.imageryLayers.addImageryProvider(ortho);
+
+        viewer.scene.globe.depthTestAgainstTerrain = true;
+
+        // 建物
         const tileset = await Cesium.Cesium3DTileset.fromUrl("./tileset.json");
         viewer.scene.primitives.add(tileset);
 
-        await viewer.zoomTo(tileset);
+        // 東京タワー
+        await addTokyoTowerOnTerrain(viewer, terrainProvider);
 
-        // 東京タワー追加
-        addTokyoTower(viewer);
-
-        // 神谷町〜芝公園寄りの視点
+        // 初期視点：神谷町〜芝公園寄り
         viewer.camera.setView({
-          destination: Cesium.Cartesian3.fromDegrees(139.7452, 35.6600, 1400),
+          destination: Cesium.Cartesian3.fromDegrees(139.7452, 35.6600, 1600),
           orientation: {
             heading: Cesium.Math.toRadians(8),
             pitch: Cesium.Math.toRadians(-42),
@@ -285,7 +297,7 @@
           }
         });
 
-        // コンパスをカメラに追従
+        // コンパス回転
         viewer.scene.postRender.addEventListener(function () {
           const heading = viewer.camera.heading;
           const deg = -Cesium.Math.toDegrees(heading);
