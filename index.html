@@ -58,10 +58,11 @@
       font-size: 12px;
       line-height: 1.6;
       color: #334155;
-      max-width: 620px;
+      max-width: 640px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.12);
     }
 
+    /* 右上コンパス */
     #compassWrap {
       position: absolute;
       top: 16px;
@@ -109,7 +110,7 @@
 
   <div id="note">
     本物の terrain（PLATEAU-Terrain）を適用し、PLATEAU-Ortho を地表に表示。<br>
-    東京タワーは地形の高さを取得して、その地面の上に立てます。<br>
+    東京タワーは地形の高さを取得し、その地面の上に立てます。<br>
     右上の赤三角は北向きコンパスです。
   </div>
 
@@ -127,6 +128,7 @@
       console.error(message);
     }
 
+    // 東京タワー座標
     const TOKYO_TOWER_LON = 139.745433;
     const TOKYO_TOWER_LAT = 35.658581;
 
@@ -145,11 +147,24 @@
     }
 
     async function addTokyoTowerOnTerrain(viewer, terrainProvider) {
-      const cartographic = Cesium.Cartographic.fromDegrees(TOKYO_TOWER_LON, TOKYO_TOWER_LAT);
-      const [sampled] = await Cesium.sampleTerrainMostDetailed(terrainProvider, [cartographic]);
-      const ground = Number.isFinite(sampled.height) ? sampled.height : 0;
+      let ground = 0;
 
-      // 高さ積み上げ（合計333m）
+      try {
+        // sampleTerrainMostDetailed ではなく sampleTerrain を使って安定化
+        const positions = [
+          Cesium.Cartographic.fromDegrees(TOKYO_TOWER_LON, TOKYO_TOWER_LAT)
+        ];
+
+        const sampled = await Cesium.sampleTerrain(terrainProvider, 14, positions);
+        if (sampled && sampled[0] && Number.isFinite(sampled[0].height)) {
+          ground = sampled[0].height;
+        }
+      } catch (err) {
+        console.warn("地形サンプリングに失敗したため ground=0 で続行します:", err);
+        ground = 0;
+      }
+
+      // 東京タワー本体（合計333m）
       // 0-140m: 下部赤
       addTowerSegment(
         viewer,
@@ -227,7 +242,7 @@
         "東京タワー 白セクション3"
       );
 
-      // 289-333m: 細いアンテナ
+      // 289-333m: アンテナ
       addTowerSegment(
         viewer,
         TOKYO_TOWER_LON,
@@ -269,15 +284,15 @@
           terrainProvider: terrainProvider
         });
 
-        // デフォルト地図を消して PLATEAU-Ortho を追加
+        // 既定地図を消して PLATEAU-Ortho を追加
         viewer.imageryLayers.removeAll();
-
         const ortho = new Cesium.UrlTemplateImageryProvider({
           url: "https://tile.plateauview.mlit.go.jp/tiles/plateau-ortho-2023/{z}/{x}/{y}.png",
           maximumLevel: 19
         });
         viewer.imageryLayers.addImageryProvider(ortho);
 
+        // 地形より下のものを隠す
         viewer.scene.globe.depthTestAgainstTerrain = true;
 
         // 建物
@@ -287,7 +302,7 @@
         // 東京タワー
         await addTokyoTowerOnTerrain(viewer, terrainProvider);
 
-        // 初期視点：神谷町〜芝公園寄り
+        // 初期視点（神谷町〜芝公園寄り）
         viewer.camera.setView({
           destination: Cesium.Cartesian3.fromDegrees(139.7452, 35.6600, 1600),
           orientation: {
