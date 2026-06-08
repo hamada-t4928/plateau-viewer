@@ -58,11 +58,11 @@
       font-size: 12px;
       line-height: 1.6;
       color: #334155;
-      max-width: 640px;
+      max-width: 680px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.12);
     }
 
-    /* コンパス */
+    /* 右上コンパス */
     #compassWrap {
       position: absolute;
       top: 16px;
@@ -110,9 +110,9 @@
 
   <div id="note">
     本物の terrain（PLATEAU-Terrain）を使う軽量版です。<br>
-    まずは確実に terrain と建物を表示する構成に戻しています。<br>
-    東京タワーは地形高さ取得に失敗しても表示されます。<br>
-    オルソ画像は一旦外して、読み込み停止の原因を切り分けています。
+    地面の見た目は、まず軽く安定しやすい地図（OSM）で表示しています。<br>
+    東京タワーは terrain の高さを取得して、その地面の上に配置します。<br>
+    初期視点を上空の見下ろしに固定し、床下にもぐらないようにしています。
   </div>
 
   <div id="cesiumContainer"></div>
@@ -165,7 +165,7 @@
         console.warn("terrain 高さ取得失敗。ground=0 で続行:", e);
       }
 
-      // 333m に合うように積み上げ
+      // 333m になるように積み上げ
       addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, ground + 70,   140, 9,   20,  Cesium.Color.fromCssColorString("#dc2626"), "東京タワー 下部本体");
       addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, ground + 149,   18, 15,  15,  Cesium.Color.WHITE,                                  "東京タワー 展望台");
       addTowerSegment(viewer, TOKYO_TOWER_LON, TOKYO_TOWER_LAT, ground + 181.5, 47, 6,   8,   Cesium.Color.WHITE,                                  "東京タワー 白1");
@@ -178,7 +178,7 @@
 
     async function main() {
       try {
-        // もし terrain 初期化が長引いても止まらないようにする
+        // 本物の terrain（PLATEAU-Terrain）
         const terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl(
           "https://tile.plateauview.mlit.go.jp/terrain/layer.json"
         );
@@ -187,19 +187,31 @@
           animation: false,
           timeline: false,
           geocoder: false,
-          baseLayerPicker: true,
+          baseLayerPicker: false,
           homeButton: true,
           sceneModePicker: true,
           navigationHelpButton: false,
           infoBox: false,
           selectionIndicator: false,
-          terrainProvider: terrainProvider
+          terrainProvider: terrainProvider,
+          imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+            url: "https://tile.openstreetmap.org/"
+          })
         });
 
-        // 地形より下を隠す。ただし見え方確認のため true にする
+        // 地形より下を隠す
         viewer.scene.globe.depthTestAgainstTerrain = true;
 
-        // 3D Tiles（少し軽く）
+        // 空を真っ黒ではなく少し明るく
+        viewer.scene.skyBox.show = false;
+        viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#87b7e3");
+
+        // 軽量化
+        viewer.scene.fog.enabled = true;
+        viewer.scene.fog.density = 0.0005;
+        viewer.scene.fog.minimumBrightness = 0.7;
+
+        // 建物
         const tileset = await Cesium.Cesium3DTileset.fromUrl("./tileset.json");
         tileset.maximumScreenSpaceError = 48;
         tileset.skipLevelOfDetail = true;
@@ -215,23 +227,22 @@
           center,
           new Cesium.HeadingPitchRange(
             Cesium.Math.toRadians(25),
-            Cesium.Math.toRadians(-45),
-            2600
+            Cesium.Math.toRadians(-50),
+            3200
           )
         );
         viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 
-        // far を絞って少し軽く
-        viewer.scene.camera.frustum.far = 5000.0;
+        // 遠景を切ってすこし軽く
+        viewer.scene.camera.frustum.far = 6000.0;
 
-        // コンパス回転
+        // コンパス
         viewer.scene.postRender.addEventListener(function () {
           const heading = viewer.camera.heading;
           const deg = -Cesium.Math.toDegrees(heading);
           compass.style.transform = `rotate(${deg}deg)`;
         });
 
-        // 読込表示は必ず消す
         hideLoading();
       } catch (e) {
         showError("エラーが発生しました:\n" + (e && e.stack ? e.stack : String(e)));
