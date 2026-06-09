@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PLATEAU Viewer - Wide Grid + Extent</title>
+  <title>PLATEAU Viewer - Limited Bird's-eye View</title>
 
-  <script src="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.js"></script>
-  <link href="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+  https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.jsscript>
+  https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css
 
   <style>
     html, body, #cesiumContainer {
@@ -58,7 +58,7 @@
       font-size: 12px;
       line-height: 1.65;
       color: #334155;
-      max-width: 860px;
+      max-width: 880px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.12);
     }
 
@@ -107,7 +107,7 @@
       white-space: nowrap;
     }
 
-    /* 画面の表示範囲ラベル */
+    /* 画面表示範囲 */
     #viewTopLeft     { top: 16px; left: 50%; transform: translateX(-50%); }
     #viewTopRight    { top: 16px; right: 16px; }
     #viewBottomLeft  { bottom: 120px; left: 16px; }
@@ -119,11 +119,11 @@
       background: rgba(255,255,255,0.78);
     }
 
-    /* グリッド範囲ラベル（色を変える） */
+    /* グリッド四隅 */
     .gridLabel {
       position: absolute;
       z-index: 131;
-      background: rgba(243,244,246,0.92);
+      background: rgba(243,244,246,0.94);
       color: #111827;
       font-size: 11px;
       line-height: 1.35;
@@ -134,8 +134,8 @@
       white-space: nowrap;
     }
 
-    #gridTopLeft     { top: 110px; left: 18px; }
-    #gridTopRight    { top: 110px; right: 18px; }
+    #gridTopLeft     { top: 108px; left: 18px; }
+    #gridTopRight    { top: 108px; right: 18px; }
     #gridBottomLeft  { bottom: 210px; left: 18px; }
     #gridBottomRight { bottom: 210px; right: 18px; }
 
@@ -184,14 +184,14 @@
     </svg>
   </div>
 
-  <!-- 表示範囲 -->
+  <!-- 画面の表示範囲 -->
   <div id="viewTopLeft" class="extentLabel">NW</div>
   <div id="viewTopRight" class="extentLabel">NE</div>
   <div id="viewBottomLeft" class="extentLabel">SW</div>
   <div id="viewBottomRight" class="extentLabel">SE</div>
   <div id="viewCenter" class="extentLabel">CENTER</div>
 
-  <!-- グリッド範囲 -->
+  <!-- グリッドの四隅 -->
   <div id="gridTopLeft" class="gridLabel">GRID NW</div>
   <div id="gridTopRight" class="gridLabel">GRID NE</div>
   <div id="gridBottomLeft" class="gridLabel">GRID SW</div>
@@ -201,9 +201,10 @@
   <div id="yAxisLabel">Y軸（南 ← 緯度 → 北）</div>
 
   <div id="note">
-    水平グリッドを広げ、さらにその四隅の座標（GRID NW/NE/SW/SE）も表示する版です。<br>
-    画面の表示範囲（NW/NE/SW/SE/CENTER）と、グリッド自体の範囲を別々に確認できます。<br>
-    後で「この範囲だけ表示」と指定するときは、まず GRID 側の座標を使う想定です。
+    鳥瞰図として、添付スクショ程度の範囲を見せる版です。<br>
+    グリッドは広めにし、その四隅の座標（GRID NW/NE/SW/SE）も表示しています。<br>
+    今後「この範囲だけ表示」に絞る際は、GRID 側の数値を基準に使います。<br>
+    東京タワーは一旦非表示です。
   </div>
 
   <div id="cesiumContainer"></div>
@@ -258,7 +259,7 @@
     }
 
     function updateGridLabels(centerLon, centerLat, widthMeters, heightMeters) {
-      // 近似換算（東京付近）
+      // 東京付近での近似換算
       const latDegPerMeter = 1.0 / 111320.0;
       const lonDegPerMeter = 1.0 / (111320.0 * Math.cos(centerLat * Math.PI / 180.0));
 
@@ -301,27 +302,26 @@
         viewer.scene.skyBox.show = false;
         viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#9bc3ea");
 
-        // 建物
         const tileset = await Cesium.Cesium3DTileset.fromUrl("./tileset.json");
         tileset.maximumScreenSpaceError = 48;
         tileset.skipLevelOfDetail = true;
         tileset.baseScreenSpaceError = 1024;
         viewer.scene.primitives.add(tileset);
 
-        // ===== 広い水平グリッド =====
-        const gridCenterLon = 139.747161;
-        const gridCenterLat = 35.663792;
+        // ===== 表示したいスクショ範囲程度に合わせたグリッド =====
+        // スクショの CENTER を基準に設定
+        const gridCenterLon = 139.745895;
+        const gridCenterLat = 35.661108;
 
-        // 今回は広げる
-        const gridWidth = 3200.0;   // メートル
-        const gridHeightMeters = 3200.0;
+        // スクショ程度の鳥瞰範囲に合わせる
+        const gridWidth = 3600.0;      // m
+        const gridHeightMeters = 2600.0; // m
 
         let gridHeight = 0;
         try {
           const sampled = await Cesium.sampleTerrain(terrainProvider, 14, [
             Cesium.Cartographic.fromDegrees(gridCenterLon, gridCenterLat)
           ]);
-
           if (sampled && sampled[0] && Number.isFinite(sampled[0].height)) {
             gridHeight = sampled[0].height + 5.0;
           }
@@ -336,8 +336,8 @@
             dimensions: new Cesium.Cartesian3(gridWidth, gridHeightMeters, 2.0),
             material: new Cesium.GridMaterialProperty({
               color: Cesium.Color.fromBytes(90, 90, 90, 180),
-              cellAlpha: 0.32,
-              lineCount: new Cesium.Cartesian2(32, 32),
+              cellAlpha: 0.30,
+              lineCount: new Cesium.Cartesian2(36, 26),
               lineThickness: new Cesium.Cartesian2(2.0, 2.0),
               lineOffset: new Cesium.Cartesian2(0.0, 0.0)
             }),
@@ -345,20 +345,19 @@
           }
         });
 
-        // グリッド四隅の座標表示
         updateGridLabels(gridCenterLon, gridCenterLat, gridWidth, gridHeightMeters);
 
-        // 初期視点
+        // 初期視点をスクショ程度の鳥瞰図に寄せる
         viewer.camera.setView({
-          destination: Cesium.Cartesian3.fromDegrees(gridCenterLon, gridCenterLat, 7800),
+          destination: Cesium.Cartesian3.fromDegrees(gridCenterLon, gridCenterLat, 5200),
           orientation: {
-            heading: Cesium.Math.toRadians(12),
-            pitch: Cesium.Math.toRadians(-82),
+            heading: Cesium.Math.toRadians(15),
+            pitch: Cesium.Math.toRadians(-78),
             roll: 0
           }
         });
 
-        viewer.scene.camera.frustum.far = 15000.0;
+        viewer.scene.camera.frustum.far = 14000.0;
 
         viewer.scene.postRender.addEventListener(function () {
           const heading = viewer.camera.heading;
