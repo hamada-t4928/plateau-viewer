@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PLATEAU Viewer - Stable Grid + Extent</title>
+  <title>PLATEAU Viewer - Stable Minimal</title>
 
-  <!-- Cesium本体 -->
+  <!-- Cesium 本体 -->
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.jslink href="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
 
   <style>
@@ -94,11 +94,11 @@
       pointer-events: none;
     }
 
-    /* 表示範囲ラベル */
+    /* 画面表示範囲ラベル */
     .extentLabel {
       position: absolute;
       z-index: 130;
-      background: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.90);
       color: #1f2937;
       font-size: 11px;
       line-height: 1.35;
@@ -117,10 +117,10 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(255,255,255,0.82);
+      background: rgba(255,255,255,0.84);
     }
 
-    /* グリッド四隅 */
+    /* グリッドの四隅ラベル */
     .gridLabel {
       position: absolute;
       z-index: 131;
@@ -185,7 +185,7 @@
     </svg>
   </div>
 
-  <!-- 表示範囲 -->
+  <!-- 画面表示範囲 -->
   <div id="viewTopLeft" class="extentLabel">NW</div>
   <div id="viewTopRight" class="extentLabel">NE</div>
   <div id="viewBottomLeft" class="extentLabel">SW</div>
@@ -202,16 +202,16 @@
   <div id="yAxisLabel">Y軸（南 ← 緯度 → 北）</div>
 
   <div id="note">
-    これまでの失敗を踏まえ、まずは「エラーが出にくい最小安定版」に戻しています。<br>
-    正しい Cesium 読み込みタグを使用し、本物の terrain（PLATEAU-Terrain）を terrain として読み込みます。<br>
+    まずは「エラーが出にくい最小安定版」です。<br>
+    本物の terrain（PLATEAU-Terrain）を terrain として読み込み、建物・広いグリッド・表示範囲ラベルだけを表示します。<br>
     地表画像は軽く安定しやすい OpenStreetMap、東京タワーは一旦非表示です。<br>
-    広いグリッドと、その四隅の座標（GRID NW/NE/SW/SE）、画面表示範囲の座標を確認できます。
+    後で表示範囲を絞るために、GRID NW / NE / SW / SE と画面表示範囲の座標を出しています。
   </div>
 
   <div id="cesiumContainer"></div>
 
   <script>
-    (function () {
+    (() => {
       const loading = document.getElementById("loading");
       const errorBox = document.getElementById("errorBox");
       const compass = document.getElementById("compass");
@@ -238,14 +238,14 @@
         loading.style.display = "none";
       }
 
-      function safeNumber(value, digits = 6) {
-        if (typeof value !== "number" || !isFinite(value)) return "---";
-        return value.toFixed(digits);
+      function safeFixed(value, digits = 6) {
+        return (typeof value === "number" && isFinite(value)) ? value.toFixed(digits) : "---";
       }
 
       function fmtDeg(rad) {
-        if (typeof rad !== "number" || !isFinite(rad)) return "---";
-        return Cesium.Math.toDegrees(rad).toFixed(6);
+        return (typeof rad === "number" && isFinite(rad))
+          ? Cesium.Math.toDegrees(rad).toFixed(6)
+          : "---";
       }
 
       function updateViewExtentLabels(viewer) {
@@ -258,18 +258,14 @@
           const south = fmtDeg(rect.south);
           const north = fmtDeg(rect.north);
 
-          const centerLon = (
-            (Cesium.Math.toDegrees(rect.west) + Cesium.Math.toDegrees(rect.east)) / 2
-          );
-          const centerLat = (
-            (Cesium.Math.toDegrees(rect.south) + Cesium.Math.toDegrees(rect.north)) / 2
-          );
+          const centerLon = (Cesium.Math.toDegrees(rect.west) + Cesium.Math.toDegrees(rect.east)) / 2;
+          const centerLat = (Cesium.Math.toDegrees(rect.south) + Cesium.Math.toDegrees(rect.north)) / 2;
 
           viewTopLeft.innerHTML = `NW<br>lon: ${west}<br>lat: ${north}`;
           viewTopRight.innerHTML = `NE<br>lon: ${east}<br>lat: ${north}`;
           viewBottomLeft.innerHTML = `SW<br>lon: ${west}<br>lat: ${south}`;
           viewBottomRight.innerHTML = `SE<br>lon: ${east}<br>lat: ${south}`;
-          viewCenter.innerHTML = `CENTER<br>lon: ${safeNumber(centerLon)}<br>lat: ${safeNumber(centerLat)}`;
+          viewCenter.innerHTML = `CENTER<br>lon: ${safeFixed(centerLon)}<br>lat: ${safeFixed(centerLat)}`;
         } catch (e) {
           console.warn("updateViewExtentLabels failed:", e);
         }
@@ -288,10 +284,10 @@
           const south = centerLat - halfH * latDegPerMeter;
           const north = centerLat + halfH * latDegPerMeter;
 
-          gridTopLeft.innerHTML = `GRID NW<br>lon: ${safeNumber(west)}<br>lat: ${safeNumber(north)}`;
-          gridTopRight.innerHTML = `GRID NE<br>lon: ${safeNumber(east)}<br>lat: ${safeNumber(north)}`;
-          gridBottomLeft.innerHTML = `GRID SW<br>lon: ${safeNumber(west)}<br>lat: ${safeNumber(south)}`;
-          gridBottomRight.innerHTML = `GRID SE<br>lon: ${safeNumber(east)}<br>lat: ${safeNumber(south)}`;
+          gridTopLeft.innerHTML = `GRID NW<br>lon: ${safeFixed(west)}<br>lat: ${safeFixed(north)}`;
+          gridTopRight.innerHTML = `GRID NE<br>lon: ${safeFixed(east)}<br>lat: ${safeFixed(north)}`;
+          gridBottomLeft.innerHTML = `GRID SW<br>lon: ${safeFixed(west)}<br>lat: ${safeFixed(south)}`;
+          gridBottomRight.innerHTML = `GRID SE<br>lon: ${safeFixed(east)}<br>lat: ${safeFixed(south)}`;
         } catch (e) {
           console.warn("updateGridLabels failed:", e);
         }
@@ -300,10 +296,10 @@
       async function main() {
         try {
           if (typeof Cesium === "undefined") {
-            throw new Error("Cesium 本体の読み込みに失敗しました。script タグまたはネットワークを確認してください。");
+            throw new Error("Cesium 本体が読み込めていません。ブラウザキャッシュを疑ってください。");
           }
 
-          // 公式の PLATEAU-Terrain（Cesium quantized-mesh）を terrainProvider に設定
+          // PLATEAU-Terrain
           const terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl(
             "https://tile.plateauview.mlit.go.jp/terrain/layer.json"
           );
@@ -334,15 +330,15 @@
           tileset.baseScreenSpaceError = 1024;
           viewer.scene.primitives.add(tileset);
 
-          // グリッド中心：添付スクショの CENTER を基準
+          // グリッド中心（前回のスクショ中心）
           const gridCenterLon = 139.745895;
           const gridCenterLat = 35.661108;
 
-          // 広い鳥瞰範囲
+          // 鳥瞰図としてスクショ範囲程度
           const gridWidth = 3600.0;
           const gridHeightMeters = 2600.0;
 
-          let gridHeight = 15.0; // terrain 採取失敗時の安全値
+          let gridHeight = 15.0;
 
           try {
             const sampled = await Cesium.sampleTerrain(terrainProvider, 14, [
@@ -352,10 +348,10 @@
               gridHeight = sampled[0].height + 5.0;
             }
           } catch (e) {
-            console.warn("grid height sample failed, fallback height used:", e);
+            console.warn("sampleTerrain failed, fallback height used:", e);
           }
 
-          // グリッド
+          // 広い水平グリッド
           viewer.entities.add({
             name: "水平グリッド",
             position: Cesium.Cartesian3.fromDegrees(gridCenterLon, gridCenterLat, gridHeight),
@@ -374,7 +370,6 @@
 
           updateGridLabels(gridCenterLon, gridCenterLat, gridWidth, gridHeightMeters);
 
-          // 初期視点：添付スクショ程度の鳥瞰図
           function setInitialView() {
             viewer.camera.setView({
               destination: Cesium.Cartesian3.fromDegrees(gridCenterLon, gridCenterLat, 5200),
@@ -388,15 +383,15 @@
 
           setInitialView();
 
-          // Home ボタンでもこの視点に戻す
-          viewer.homeButton.viewModel.command.beforeExecute.addEventListener(function (e) {
+          // Home ボタンで必ずこの鳥瞰図に戻る
+          viewer.homeButton.viewModel.command.beforeExecute.addEventListener((e) => {
             e.cancel = true;
             setInitialView();
           });
 
           viewer.scene.camera.frustum.far = 14000.0;
 
-          viewer.scene.postRender.addEventListener(function () {
+          viewer.scene.postRender.addEventListener(() => {
             try {
               const heading = viewer.camera.heading;
               if (typeof heading === "number" && isFinite(heading)) {
@@ -412,21 +407,15 @@
           setTimeout(() => {
             updateViewExtentLabels(viewer);
             hideLoading();
-          }, 600);
+          }, 700);
 
         } catch (e) {
-          showError(
-            "エラーが発生しました:\n" +
-            (e && e.stack ? e.stack : String(e))
-          );
+          showError("エラーが発生しました:\n" + (e && e.stack ? e.stack : String(e)));
         }
       }
 
       // 念のため、長時間待ち続けない
-      setTimeout(() => {
-        hideLoading();
-      }, 12000);
-
+      setTimeout(hideLoading, 15000);
       window.addEventListener("load", main);
     })();
   </script>
