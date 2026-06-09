@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PLATEAU Viewer - Grid + Extent</title>
 
-  https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.jsscript>
-  https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
 
   <style>
     html, body, #cesiumContainer {
@@ -268,13 +268,13 @@
             Cesium.Cartographic.fromDegrees(gridCenterLon, gridCenterLat)
           ]);
           if (sampled && sampled[0] && Number.isFinite(sampled[0].height)) {
-            gridHeight = sampled[0].height + 5.0; // 少しだけ浮かせて確実に見せる
+            gridHeight = sampled[0].height + 5.0;
           }
         } catch (e) {
           console.warn("grid height sample failed:", e);
         }
 
-        const gridEntity = viewer.entities.add({
+        viewer.entities.add({
           name: "水平グリッド",
           position: Cesium.Cartesian3.fromDegrees(gridCenterLon, gridCenterLat, gridHeight),
           box: {
@@ -290,7 +290,7 @@
           }
         });
 
-        // 初期視点：グリッドが見やすいよう、真上寄り
+        // 初期視点
         viewer.camera.setView({
           destination: Cesium.Cartesian3.fromDegrees(gridCenterLon, gridCenterLat, 6500),
           orientation: {
