@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PLATEAU Viewer - Limited Bird's-eye View</title>
+  <title>PLATEAU Viewer - Stable Grid + Extent</title>
 
-  https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.jsscript>
-  https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css
+  <!-- Cesium本体 -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.jslink href="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
 
   <style>
     html, body, #cesiumContainer {
@@ -24,11 +24,11 @@
       top: 12px;
       left: 12px;
       z-index: 100;
-      background: rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.96);
       padding: 10px 12px;
       border-radius: 8px;
       font-size: 14px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
     }
 
     #errorBox {
@@ -37,7 +37,7 @@
       left: 12px;
       right: 12px;
       z-index: 101;
-      background: rgba(220,38,38,0.95);
+      background: rgba(220,38,38,0.96);
       color: white;
       padding: 10px 12px;
       border-radius: 8px;
@@ -52,16 +52,17 @@
       left: 12px;
       bottom: 12px;
       z-index: 100;
-      background: rgba(255,255,255,0.92);
+      background: rgba(255,255,255,0.93);
       padding: 10px 12px;
       border-radius: 8px;
       font-size: 12px;
       line-height: 1.65;
       color: #334155;
-      max-width: 880px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+      max-width: 920px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
     }
 
+    /* コンパス */
     #compassWrap {
       position: absolute;
       top: 16px;
@@ -93,10 +94,11 @@
       pointer-events: none;
     }
 
+    /* 表示範囲ラベル */
     .extentLabel {
       position: absolute;
       z-index: 130;
-      background: rgba(255,255,255,0.88);
+      background: rgba(255,255,255,0.9);
       color: #1f2937;
       font-size: 11px;
       line-height: 1.35;
@@ -107,7 +109,6 @@
       white-space: nowrap;
     }
 
-    /* 画面表示範囲 */
     #viewTopLeft     { top: 16px; left: 50%; transform: translateX(-50%); }
     #viewTopRight    { top: 16px; right: 16px; }
     #viewBottomLeft  { bottom: 120px; left: 16px; }
@@ -116,14 +117,14 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: rgba(255,255,255,0.78);
+      background: rgba(255,255,255,0.82);
     }
 
     /* グリッド四隅 */
     .gridLabel {
       position: absolute;
       z-index: 131;
-      background: rgba(243,244,246,0.94);
+      background: rgba(243,244,246,0.95);
       color: #111827;
       font-size: 11px;
       line-height: 1.35;
@@ -145,7 +146,7 @@
       left: 50%;
       transform: translateX(-50%);
       z-index: 130;
-      background: rgba(255,255,255,0.92);
+      background: rgba(255,255,255,0.93);
       color: #111827;
       font-size: 12px;
       padding: 4px 8px;
@@ -161,7 +162,7 @@
       transform: translateY(-50%) rotate(-90deg);
       transform-origin: left top;
       z-index: 130;
-      background: rgba(255,255,255,0.92);
+      background: rgba(255,255,255,0.93);
       color: #111827;
       font-size: 12px;
       padding: 4px 8px;
@@ -184,14 +185,14 @@
     </svg>
   </div>
 
-  <!-- 画面の表示範囲 -->
+  <!-- 表示範囲 -->
   <div id="viewTopLeft" class="extentLabel">NW</div>
   <div id="viewTopRight" class="extentLabel">NE</div>
   <div id="viewBottomLeft" class="extentLabel">SW</div>
   <div id="viewBottomRight" class="extentLabel">SE</div>
   <div id="viewCenter" class="extentLabel">CENTER</div>
 
-  <!-- グリッドの四隅 -->
+  <!-- グリッド範囲 -->
   <div id="gridTopLeft" class="gridLabel">GRID NW</div>
   <div id="gridTopRight" class="gridLabel">GRID NE</div>
   <div id="gridBottomLeft" class="gridLabel">GRID SW</div>
@@ -201,186 +202,233 @@
   <div id="yAxisLabel">Y軸（南 ← 緯度 → 北）</div>
 
   <div id="note">
-    鳥瞰図として、添付スクショ程度の範囲を見せる版です。<br>
-    グリッドは広めにし、その四隅の座標（GRID NW/NE/SW/SE）も表示しています。<br>
-    今後「この範囲だけ表示」に絞る際は、GRID 側の数値を基準に使います。<br>
-    東京タワーは一旦非表示です。
+    これまでの失敗を踏まえ、まずは「エラーが出にくい最小安定版」に戻しています。<br>
+    正しい Cesium 読み込みタグを使用し、本物の terrain（PLATEAU-Terrain）を terrain として読み込みます。<br>
+    地表画像は軽く安定しやすい OpenStreetMap、東京タワーは一旦非表示です。<br>
+    広いグリッドと、その四隅の座標（GRID NW/NE/SW/SE）、画面表示範囲の座標を確認できます。
   </div>
 
   <div id="cesiumContainer"></div>
 
   <script>
-    const loading = document.getElementById("loading");
-    const errorBox = document.getElementById("errorBox");
-    const compass = document.getElementById("compass");
+    (function () {
+      const loading = document.getElementById("loading");
+      const errorBox = document.getElementById("errorBox");
+      const compass = document.getElementById("compass");
 
-    const viewTopLeft = document.getElementById("viewTopLeft");
-    const viewTopRight = document.getElementById("viewTopRight");
-    const viewBottomLeft = document.getElementById("viewBottomLeft");
-    const viewBottomRight = document.getElementById("viewBottomRight");
-    const viewCenter = document.getElementById("viewCenter");
+      const viewTopLeft = document.getElementById("viewTopLeft");
+      const viewTopRight = document.getElementById("viewTopRight");
+      const viewBottomLeft = document.getElementById("viewBottomLeft");
+      const viewBottomRight = document.getElementById("viewBottomRight");
+      const viewCenter = document.getElementById("viewCenter");
 
-    const gridTopLeft = document.getElementById("gridTopLeft");
-    const gridTopRight = document.getElementById("gridTopRight");
-    const gridBottomLeft = document.getElementById("gridBottomLeft");
-    const gridBottomRight = document.getElementById("gridBottomRight");
+      const gridTopLeft = document.getElementById("gridTopLeft");
+      const gridTopRight = document.getElementById("gridTopRight");
+      const gridBottomLeft = document.getElementById("gridBottomLeft");
+      const gridBottomRight = document.getElementById("gridBottomRight");
 
-    function showError(message) {
-      errorBox.style.display = "block";
-      errorBox.textContent = message;
-      loading.style.display = "none";
-      console.error(message);
-    }
-
-    function hideLoading() {
-      loading.style.display = "none";
-    }
-
-    function fmtDeg(rad) {
-      return Cesium.Math.toDegrees(rad).toFixed(6);
-    }
-
-    function updateViewExtentLabels(viewer) {
-      const rect = viewer.camera.computeViewRectangle(viewer.scene.globe.ellipsoid);
-      if (!rect) return;
-
-      const west = fmtDeg(rect.west);
-      const east = fmtDeg(rect.east);
-      const south = fmtDeg(rect.south);
-      const north = fmtDeg(rect.north);
-      const centerLon = ((Cesium.Math.toDegrees(rect.west) + Cesium.Math.toDegrees(rect.east)) / 2).toFixed(6);
-      const centerLat = ((Cesium.Math.toDegrees(rect.south) + Cesium.Math.toDegrees(rect.north)) / 2).toFixed(6);
-
-      viewTopLeft.innerHTML = `NW<br>lon: ${west}<br>lat: ${north}`;
-      viewTopRight.innerHTML = `NE<br>lon: ${east}<br>lat: ${north}`;
-      viewBottomLeft.innerHTML = `SW<br>lon: ${west}<br>lat: ${south}`;
-      viewBottomRight.innerHTML = `SE<br>lon: ${east}<br>lat: ${south}`;
-      viewCenter.innerHTML = `CENTER<br>lon: ${centerLon}<br>lat: ${centerLat}`;
-    }
-
-    function updateGridLabels(centerLon, centerLat, widthMeters, heightMeters) {
-      // 東京付近での近似換算
-      const latDegPerMeter = 1.0 / 111320.0;
-      const lonDegPerMeter = 1.0 / (111320.0 * Math.cos(centerLat * Math.PI / 180.0));
-
-      const halfW = widthMeters / 2.0;
-      const halfH = heightMeters / 2.0;
-
-      const west = centerLon - halfW * lonDegPerMeter;
-      const east = centerLon + halfW * lonDegPerMeter;
-      const south = centerLat - halfH * latDegPerMeter;
-      const north = centerLat + halfH * latDegPerMeter;
-
-      gridTopLeft.innerHTML = `GRID NW<br>lon: ${west.toFixed(6)}<br>lat: ${north.toFixed(6)}`;
-      gridTopRight.innerHTML = `GRID NE<br>lon: ${east.toFixed(6)}<br>lat: ${north.toFixed(6)}`;
-      gridBottomLeft.innerHTML = `GRID SW<br>lon: ${west.toFixed(6)}<br>lat: ${south.toFixed(6)}`;
-      gridBottomRight.innerHTML = `GRID SE<br>lon: ${east.toFixed(6)}<br>lat: ${south.toFixed(6)}`;
-    }
-
-    async function main() {
-      try {
-        const terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl(
-          "https://tile.plateauview.mlit.go.jp/terrain/layer.json"
-        );
-
-        const viewer = new Cesium.Viewer("cesiumContainer", {
-          animation: false,
-          timeline: false,
-          geocoder: false,
-          baseLayerPicker: false,
-          homeButton: true,
-          sceneModePicker: true,
-          navigationHelpButton: false,
-          infoBox: false,
-          selectionIndicator: false,
-          terrainProvider: terrainProvider,
-          imageryProvider: new Cesium.OpenStreetMapImageryProvider({
-            url: "https://tile.openstreetmap.org/"
-          })
-        });
-
-        viewer.scene.skyBox.show = false;
-        viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#9bc3ea");
-
-        const tileset = await Cesium.Cesium3DTileset.fromUrl("./tileset.json");
-        tileset.maximumScreenSpaceError = 48;
-        tileset.skipLevelOfDetail = true;
-        tileset.baseScreenSpaceError = 1024;
-        viewer.scene.primitives.add(tileset);
-
-        // ===== 表示したいスクショ範囲程度に合わせたグリッド =====
-        // スクショの CENTER を基準に設定
-        const gridCenterLon = 139.745895;
-        const gridCenterLat = 35.661108;
-
-        // スクショ程度の鳥瞰範囲に合わせる
-        const gridWidth = 3600.0;      // m
-        const gridHeightMeters = 2600.0; // m
-
-        let gridHeight = 0;
-        try {
-          const sampled = await Cesium.sampleTerrain(terrainProvider, 14, [
-            Cesium.Cartographic.fromDegrees(gridCenterLon, gridCenterLat)
-          ]);
-          if (sampled && sampled[0] && Number.isFinite(sampled[0].height)) {
-            gridHeight = sampled[0].height + 5.0;
-          }
-        } catch (e) {
-          console.warn("grid height sample failed:", e);
-        }
-
-        viewer.entities.add({
-          name: "水平グリッド",
-          position: Cesium.Cartesian3.fromDegrees(gridCenterLon, gridCenterLat, gridHeight),
-          box: {
-            dimensions: new Cesium.Cartesian3(gridWidth, gridHeightMeters, 2.0),
-            material: new Cesium.GridMaterialProperty({
-              color: Cesium.Color.fromBytes(90, 90, 90, 180),
-              cellAlpha: 0.30,
-              lineCount: new Cesium.Cartesian2(36, 26),
-              lineThickness: new Cesium.Cartesian2(2.0, 2.0),
-              lineOffset: new Cesium.Cartesian2(0.0, 0.0)
-            }),
-            outline: false
-          }
-        });
-
-        updateGridLabels(gridCenterLon, gridCenterLat, gridWidth, gridHeightMeters);
-
-        // 初期視点をスクショ程度の鳥瞰図に寄せる
-        viewer.camera.setView({
-          destination: Cesium.Cartesian3.fromDegrees(gridCenterLon, gridCenterLat, 5200),
-          orientation: {
-            heading: Cesium.Math.toRadians(15),
-            pitch: Cesium.Math.toRadians(-78),
-            roll: 0
-          }
-        });
-
-        viewer.scene.camera.frustum.far = 14000.0;
-
-        viewer.scene.postRender.addEventListener(function () {
-          const heading = viewer.camera.heading;
-          const deg = -Cesium.Math.toDegrees(heading);
-          compass.style.transform = `rotate(${deg}deg)`;
-          updateViewExtentLabels(viewer);
-        });
-
-        setTimeout(() => {
-          updateViewExtentLabels(viewer);
-          hideLoading();
-        }, 600);
-
-      } catch (e) {
-        showError("エラーが発生しました:\n" + (e && e.stack ? e.stack : String(e)));
+      function showError(message) {
+        errorBox.style.display = "block";
+        errorBox.textContent = message;
+        loading.style.display = "none";
+        console.error(message);
       }
-    }
 
-    setTimeout(() => {
-      hideLoading();
-    }, 12000);
+      function hideLoading() {
+        loading.style.display = "none";
+      }
 
-    main();
+      function safeNumber(value, digits = 6) {
+        if (typeof value !== "number" || !isFinite(value)) return "---";
+        return value.toFixed(digits);
+      }
+
+      function fmtDeg(rad) {
+        if (typeof rad !== "number" || !isFinite(rad)) return "---";
+        return Cesium.Math.toDegrees(rad).toFixed(6);
+      }
+
+      function updateViewExtentLabels(viewer) {
+        try {
+          const rect = viewer.camera.computeViewRectangle(viewer.scene.globe.ellipsoid);
+          if (!rect) return;
+
+          const west = fmtDeg(rect.west);
+          const east = fmtDeg(rect.east);
+          const south = fmtDeg(rect.south);
+          const north = fmtDeg(rect.north);
+
+          const centerLon = (
+            (Cesium.Math.toDegrees(rect.west) + Cesium.Math.toDegrees(rect.east)) / 2
+          );
+          const centerLat = (
+            (Cesium.Math.toDegrees(rect.south) + Cesium.Math.toDegrees(rect.north)) / 2
+          );
+
+          viewTopLeft.innerHTML = `NW<br>lon: ${west}<br>lat: ${north}`;
+          viewTopRight.innerHTML = `NE<br>lon: ${east}<br>lat: ${north}`;
+          viewBottomLeft.innerHTML = `SW<br>lon: ${west}<br>lat: ${south}`;
+          viewBottomRight.innerHTML = `SE<br>lon: ${east}<br>lat: ${south}`;
+          viewCenter.innerHTML = `CENTER<br>lon: ${safeNumber(centerLon)}<br>lat: ${safeNumber(centerLat)}`;
+        } catch (e) {
+          console.warn("updateViewExtentLabels failed:", e);
+        }
+      }
+
+      function updateGridLabels(centerLon, centerLat, widthMeters, heightMeters) {
+        try {
+          const latDegPerMeter = 1.0 / 111320.0;
+          const lonDegPerMeter = 1.0 / (111320.0 * Math.cos(centerLat * Math.PI / 180.0));
+
+          const halfW = widthMeters / 2.0;
+          const halfH = heightMeters / 2.0;
+
+          const west = centerLon - halfW * lonDegPerMeter;
+          const east = centerLon + halfW * lonDegPerMeter;
+          const south = centerLat - halfH * latDegPerMeter;
+          const north = centerLat + halfH * latDegPerMeter;
+
+          gridTopLeft.innerHTML = `GRID NW<br>lon: ${safeNumber(west)}<br>lat: ${safeNumber(north)}`;
+          gridTopRight.innerHTML = `GRID NE<br>lon: ${safeNumber(east)}<br>lat: ${safeNumber(north)}`;
+          gridBottomLeft.innerHTML = `GRID SW<br>lon: ${safeNumber(west)}<br>lat: ${safeNumber(south)}`;
+          gridBottomRight.innerHTML = `GRID SE<br>lon: ${safeNumber(east)}<br>lat: ${safeNumber(south)}`;
+        } catch (e) {
+          console.warn("updateGridLabels failed:", e);
+        }
+      }
+
+      async function main() {
+        try {
+          if (typeof Cesium === "undefined") {
+            throw new Error("Cesium 本体の読み込みに失敗しました。script タグまたはネットワークを確認してください。");
+          }
+
+          // 公式の PLATEAU-Terrain（Cesium quantized-mesh）を terrainProvider に設定
+          const terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl(
+            "https://tile.plateauview.mlit.go.jp/terrain/layer.json"
+          );
+
+          const viewer = new Cesium.Viewer("cesiumContainer", {
+            animation: false,
+            timeline: false,
+            geocoder: false,
+            baseLayerPicker: false,
+            homeButton: true,
+            sceneModePicker: true,
+            navigationHelpButton: false,
+            infoBox: false,
+            selectionIndicator: false,
+            terrainProvider: terrainProvider,
+            imageryProvider: new Cesium.OpenStreetMapImageryProvider({
+              url: "https://tile.openstreetmap.org/"
+            })
+          });
+
+          viewer.scene.skyBox.show = false;
+          viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#9bc3ea");
+
+          // 建物
+          const tileset = await Cesium.Cesium3DTileset.fromUrl("./tileset.json");
+          tileset.maximumScreenSpaceError = 48;
+          tileset.skipLevelOfDetail = true;
+          tileset.baseScreenSpaceError = 1024;
+          viewer.scene.primitives.add(tileset);
+
+          // グリッド中心：添付スクショの CENTER を基準
+          const gridCenterLon = 139.745895;
+          const gridCenterLat = 35.661108;
+
+          // 広い鳥瞰範囲
+          const gridWidth = 3600.0;
+          const gridHeightMeters = 2600.0;
+
+          let gridHeight = 15.0; // terrain 採取失敗時の安全値
+
+          try {
+            const sampled = await Cesium.sampleTerrain(terrainProvider, 14, [
+              Cesium.Cartographic.fromDegrees(gridCenterLon, gridCenterLat)
+            ]);
+            if (sampled && sampled[0] && Number.isFinite(sampled[0].height)) {
+              gridHeight = sampled[0].height + 5.0;
+            }
+          } catch (e) {
+            console.warn("grid height sample failed, fallback height used:", e);
+          }
+
+          // グリッド
+          viewer.entities.add({
+            name: "水平グリッド",
+            position: Cesium.Cartesian3.fromDegrees(gridCenterLon, gridCenterLat, gridHeight),
+            box: {
+              dimensions: new Cesium.Cartesian3(gridWidth, gridHeightMeters, 2.0),
+              material: new Cesium.GridMaterialProperty({
+                color: Cesium.Color.fromBytes(90, 90, 90, 180),
+                cellAlpha: 0.30,
+                lineCount: new Cesium.Cartesian2(36, 26),
+                lineThickness: new Cesium.Cartesian2(2.0, 2.0),
+                lineOffset: new Cesium.Cartesian2(0.0, 0.0)
+              }),
+              outline: false
+            }
+          });
+
+          updateGridLabels(gridCenterLon, gridCenterLat, gridWidth, gridHeightMeters);
+
+          // 初期視点：添付スクショ程度の鳥瞰図
+          function setInitialView() {
+            viewer.camera.setView({
+              destination: Cesium.Cartesian3.fromDegrees(gridCenterLon, gridCenterLat, 5200),
+              orientation: {
+                heading: Cesium.Math.toRadians(15),
+                pitch: Cesium.Math.toRadians(-78),
+                roll: 0
+              }
+            });
+          }
+
+          setInitialView();
+
+          // Home ボタンでもこの視点に戻す
+          viewer.homeButton.viewModel.command.beforeExecute.addEventListener(function (e) {
+            e.cancel = true;
+            setInitialView();
+          });
+
+          viewer.scene.camera.frustum.far = 14000.0;
+
+          viewer.scene.postRender.addEventListener(function () {
+            try {
+              const heading = viewer.camera.heading;
+              if (typeof heading === "number" && isFinite(heading)) {
+                const deg = -Cesium.Math.toDegrees(heading);
+                compass.style.transform = `rotate(${deg}deg)`;
+              }
+              updateViewExtentLabels(viewer);
+            } catch (e) {
+              console.warn("postRender update failed:", e);
+            }
+          });
+
+          setTimeout(() => {
+            updateViewExtentLabels(viewer);
+            hideLoading();
+          }, 600);
+
+        } catch (e) {
+          showError(
+            "エラーが発生しました:\n" +
+            (e && e.stack ? e.stack : String(e))
+          );
+        }
+      }
+
+      // 念のため、長時間待ち続けない
+      setTimeout(() => {
+        hideLoading();
+      }, 12000);
+
+      window.addEventListener("load", main);
+    })();
   </script>
 </body>
 </html>
