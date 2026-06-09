@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PLATEAU Viewer - Stable Grid Step</title>
+  <title>PLATEAU Viewer - Fixed Bird's-eye Step</title>
 
   <!-- Cesium 本体 -->
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.117/Build/Cesium/Cesium.js"></script>
@@ -110,7 +110,7 @@
       pointer-events: none;
     }
 
-    /* 画面表示範囲ラベル */
+    /* 表示範囲ラベル */
     .extentLabel {
       position: absolute;
       z-index: 1002;
@@ -214,9 +214,9 @@
   <div id="yAxisLabel">Y軸（南 ← 緯度 → 北）</div>
 
   <div id="note">
-    表示成功した安定版に、グリッドと範囲ラベルだけを追加した版です。<br>
+    成功した安定版をベースに、鳥瞰図の範囲固定・グリッド・範囲ラベルだけを戻した版です。<br>
     東京タワー・仮プレートはまだ入れていません。<br>
-    後で「この範囲だけ表示」に絞るため、GRID NW / NE / SW / SE の数値を確認してください。
+    後で「この範囲だけ表示」に絞るため、GRID NW / NE / SW / SE の数値を使います。
   </div>
 
   <div id="cesiumContainer"></div>
@@ -318,7 +318,7 @@
 
         setStatus("Cesium 読み込み済み\nViewer を初期化します...");
 
-        // まずは前回同様、terrain なしで Viewer を確実に表示
+        // 前回成功した順序を維持
         const viewer = new Cesium.Viewer("cesiumContainer", {
           animation: false,
           timeline: false,
@@ -345,15 +345,15 @@
         tileset.baseScreenSpaceError = 1024;
         viewer.scene.primitives.add(tileset);
 
-        // グリッド中心（前回の安定表示スクショ中心）
-        const gridCenterLon = 139.745895;
-        const gridCenterLat = 35.661108;
+        // 現在の成功スクショ中心を使う
+        const gridCenterLon = 139.750999;
+        const gridCenterLat = 35.671732;
+
+        // 鳥瞰図としておおむね今の範囲
         const gridWidth = 3600.0;
         const gridHeightMeters = 2600.0;
 
-        // まず固定高さでグリッドを出す（terrain サンプルで止まらないように）
-        let gridHeight = 20.0;
-
+        let gridHeight = 20.0; // まず固定高さで安定表示
         viewer.entities.add({
           name: "grid",
           position: Cesium.Cartesian3.fromDegrees(gridCenterLon, gridCenterLat, gridHeight),
@@ -391,7 +391,6 @@
 
         viewer.scene.camera.frustum.far = 14000.0;
 
-        // terrain は後から読み込めたら適用
         setStatus("建物 + グリッド表示 OK\nPLATEAU-Terrain を読み込み中...");
 
         try {
@@ -417,7 +416,7 @@
           }
         });
 
-        setTimeout(function(){
+        setTimeout(function () {
           updateViewExtentLabels(viewer);
           hideLoading();
         }, 700);
@@ -432,3 +431,4 @@
   </script>
 </body>
 </html>
+``
